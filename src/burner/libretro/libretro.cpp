@@ -107,8 +107,13 @@ static ROMFIND g_find_list[1024];
 static unsigned g_rom_count;
 static unsigned fba_devices[5] = { RETROPAD_CLASSIC, RETROPAD_CLASSIC, RETROPAD_CLASSIC, RETROPAD_CLASSIC, RETROPAD_CLASSIC };
 
+#if !defined(SF2000)
 #define AUDIO_SAMPLERATE 32000
 #define AUDIO_SEGMENT_LENGTH 534 // <-- Hardcoded value that corresponds well to 32kHz audio.
+#else
+#define AUDIO_SAMPLERATE 11025
+#define AUDIO_SEGMENT_LENGTH 184 // <-- Hardcoded value that corresponds well to 32kHz audio.
+#endif
 
 static uint16_t *g_fba_frame;
 static int16_t g_audio_buf[AUDIO_SEGMENT_LENGTH * 2];
@@ -2102,10 +2107,14 @@ void retro_get_system_av_info(struct retro_system_av_info *info)
    if (game_aspect_x != 0 && game_aspect_y != 0 && !core_aspect_par)
       geom.aspect_ratio = (float)game_aspect_x / (float)game_aspect_y;
 
+#if !defined(SF2000)
 #ifdef FBACORES_CPS
    struct retro_system_timing timing = { 59.629403, 59.629403 * AUDIO_SEGMENT_LENGTH };
 #else
    struct retro_system_timing timing = { (nBurnFPS / 100.0), (nBurnFPS / 100.0) * AUDIO_SEGMENT_LENGTH };
+#endif
+#else
+   struct retro_system_timing timing = { 60, AUDIO_SAMPLERATE };
 #endif
 
    info->geometry = geom;
